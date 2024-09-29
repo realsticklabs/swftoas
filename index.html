@@ -3,26 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Decompress SWF Data</title>
+    <title>Zlib Decompression Example for SWF Files</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.11/pako.min.js"></script>
 </head>
 <body>
-    <h1>SWF Decompression Example</h1>
+    <h1>Zlib Decompression Example for SWF Files</h1>
     
+    <!-- File input and button -->
+    <input type="file" id="fileInput" accept=".swf" />
+    <button id="decompressButton">Decompress SWF File</button>
+    
+    <pre id="output"></pre>
+
     <script>
-        // Example compressed data (replace this with your zlib-compressed SWF byte array)
-        const compressedData = new Uint8Array([/* Your compressed byte data here */]);
+        document.getElementById('decompressButton').addEventListener('click', function() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
 
-        try {
-            // Decompress the data
-            const decompressedData = pako.inflate(compressedData);
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        // Read the array buffer
+                        const compressedData = new Uint8Array(event.target.result);
 
-            // Convert to string (assuming original data was a string)
-            const originalData = new TextDecoder().decode(decompressedData);
-            console.log('Decompressed Data:', originalData);
-        } catch (err) {
-            console.error('Decompression failed:', err);
-        }
+                        // Decompress the data
+                        const decompressedData = pako.inflate(compressedData);
+
+                        // Convert to string (assuming original data was UTF-8 text)
+                        const originalData = new TextDecoder('utf-8').decode(decompressedData);
+                        console.log('Decompressed Data:', originalData);
+                        document.getElementById('output').textContent = 'Decompressed Data: ' + originalData;
+                    } catch (err) {
+                        console.error('Decompression failed:', err);
+                        document.getElementById('output').textContent = 'Decompression failed: ' + err.message;
+                    }
+                };
+
+                // Read the file as an ArrayBuffer
+                reader.readAsArrayBuffer(file);
+            } else {
+                alert('Please select a SWF file to decompress.');
+            }
+        });
     </script>
 </body>
 </html>
