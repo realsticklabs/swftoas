@@ -40,6 +40,13 @@
                             // Attempt to extract readable ActionScript from the decompressed data
                             const actionScriptCode = extractActionScript(decompressedData);
                             flaContent = `// Simulated FLA file\n// Decompressed ActionScript from SWF\n\n${actionScriptCode}`;
+
+                            // Output the extracted ActionScript
+                            document.getElementById('output').textContent = flaContent;
+
+                            // Show the save and zip buttons
+                            document.getElementById('saveButton').style.display = 'inline-block';
+                            document.getElementById('zipButton').style.display = 'inline-block';
                         } else if (header === "FWS") {
                             document.getElementById('output').textContent = 'The SWF file is not compressed.';
                             return;
@@ -47,14 +54,6 @@
                             document.getElementById('output').textContent = 'Invalid SWF file.';
                             return;
                         }
-
-                        console.log('Extracted ActionScript:', actionScriptCode);
-                        document.getElementById('output').textContent = 'Decompressed ActionScript content ready.';
-
-                        // Show the save and zip buttons
-                        document.getElementById('saveButton').style.display = 'inline-block';
-                        document.getElementById('zipButton').style.display = 'inline-block';
-
                     } catch (err) {
                         console.error('Decompression failed:', err);
                         document.getElementById('output').textContent = 'Decompression failed: ' + err.message;
@@ -72,7 +71,7 @@
             const decodedData = new TextDecoder('utf-8').decode(decompressedData);
             // Simple extraction of ActionScript code (this can be improved)
             const actionScriptMatch = decodedData.match(/(package\s*{[^}]*})/s);
-            return actionScriptMatch ? actionScriptMatch[1] : "// No ActionScript found";
+            return actionScriptMatch ? actionScriptMatch[0] : "// No ActionScript found";
         }
 
         document.getElementById('saveButton').addEventListener('click', function() {
