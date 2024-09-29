@@ -25,13 +25,28 @@
                 reader.onload = function(event) {
                     try {
                         // Read the array buffer
-                        const compressedData = new Uint8Array(event.target.result);
+                        const arrayBuffer = event.target.result;
+                        const byteArray = new Uint8Array(arrayBuffer);
 
-                        // Decompress the data
-                        const decompressedData = pako.inflate(compressedData);
+                        // Check SWF header (first 3 bytes should be "FWS" for uncompressed or "CWS" for compressed)
+                        const header = String.fromCharCode.apply(null, byteArray.slice(0, 3));
+                        let compressedData;
+
+                        if (header === "CWS") {
+                            // SWF is compressed, we need to skip the first 8 bytes (header) and then decompress
+                            const compressedByteArray = byteArray.slice(8);
+                            compressedData = pako.inflate(compressedByteArray);
+                        } else if (header === "FWS") {
+                            // SWF is not compressed
+                            document.getElementById('output').textContent = 'The SWF file is not compressed.';
+                            return;
+                        } else {
+                            document.getElementById('output').textContent = 'Invalid SWF file.';
+                            return;
+                        }
 
                         // Convert to string (assuming original data was UTF-8 text)
-                        const originalData = new TextDecoder('utf-8').decode(decompressedData);
+                        const originalData = new TextDecoder('utf-8').decode(compressedData);
                         console.log('Decompressed Data:', originalData);
                         document.getElementById('output').textContent = 'Decompressed Data: ' + originalData;
                     } catch (err) {
