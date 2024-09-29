@@ -12,10 +12,13 @@
     <!-- File input and button -->
     <input type="file" id="fileInput" accept=".swf" />
     <button id="decompressButton">Decompress SWF File</button>
+    <button id="saveButton" style="display: none;">Save as FLA</button>
     
     <pre id="output"></pre>
 
     <script>
+        let decompressedData;
+
         document.getElementById('decompressButton').addEventListener('click', function() {
             const fileInput = document.getElementById('fileInput');
             const file = fileInput.files[0];
@@ -24,20 +27,14 @@
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     try {
-                        // Read the array buffer
                         const arrayBuffer = event.target.result;
                         const byteArray = new Uint8Array(arrayBuffer);
 
-                        // Check SWF header (first 3 bytes should be "FWS" for uncompressed or "CWS" for compressed)
                         const header = String.fromCharCode.apply(null, byteArray.slice(0, 3));
-                        let compressedData;
-
                         if (header === "CWS") {
-                            // SWF is compressed, we need to skip the first 8 bytes (header) and then decompress
                             const compressedByteArray = byteArray.slice(8);
-                            compressedData = pako.inflate(compressedByteArray);
+                            decompressedData = pako.inflate(compressedByteArray);
                         } else if (header === "FWS") {
-                            // SWF is not compressed
                             document.getElementById('output').textContent = 'The SWF file is not compressed.';
                             return;
                         } else {
@@ -45,20 +42,38 @@
                             return;
                         }
 
-                        // Convert to string (assuming original data was UTF-8 text)
-                        const originalData = new TextDecoder('utf-8').decode(compressedData);
+                        const originalData = new TextDecoder('utf-8').decode(decompressedData);
                         console.log('Decompressed Data:', originalData);
                         document.getElementById('output').textContent = 'Decompressed Data: ' + originalData;
+
+                        // Show the save button
+                        document.getElementById('saveButton').style.display = 'inline-block';
+
                     } catch (err) {
                         console.error('Decompression failed:', err);
                         document.getElementById('output').textContent = 'Decompression failed: ' + err.message;
                     }
                 };
 
-                // Read the file as an ArrayBuffer
                 reader.readAsArrayBuffer(file);
             } else {
                 alert('Please select a SWF file to decompress.');
+            }
+        });
+
+        document.getElementById('saveButton').addEventListener('click', function() {
+            if (decompressedData) {
+                const blob = new Blob([decompressedData], { type: 'application/octet-stream' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'output.fla';  // Set the name of the file
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url); // Clean up
+            } else {
+                alert('No decompressed data available to save.');
             }
         });
     </script>
