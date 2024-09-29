@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SWF Decompression to FLA and ZIP Compression</title>
+    <title>SWF Decompression to ActionScript and ZIP Compression</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.11/pako.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
-    <h1>SWF Decompression to FLA and ZIP Compression</h1>
+    <h1>SWF Decompression to ActionScript and ZIP Compression</h1>
     
     <!-- File input and buttons -->
     <input type="file" id="fileInput" accept=".swf" />
-    <button id="decompressButton">Decompress SWF to FLA</button>
+    <button id="decompressButton">Decompress SWF to ActionScript</button>
     <button id="saveButton" style="display: none;">Save as FLA</button>
     <button id="zipButton" style="display: none;">Compress to ZIP</button>
     
@@ -37,8 +37,9 @@
                             const compressedByteArray = byteArray.slice(8);
                             const decompressedData = pako.inflate(compressedByteArray);
                             
-                            // Prepare simulated FLA content
-                            flaContent = `// Simulated FLA file\n// Decompressed from SWF\n\n${new TextDecoder('utf-8').decode(decompressedData)}`;
+                            // Attempt to extract readable ActionScript from the decompressed data
+                            const actionScriptCode = extractActionScript(decompressedData);
+                            flaContent = `// Simulated FLA file\n// Decompressed ActionScript from SWF\n\n${actionScriptCode}`;
                         } else if (header === "FWS") {
                             document.getElementById('output').textContent = 'The SWF file is not compressed.';
                             return;
@@ -47,8 +48,8 @@
                             return;
                         }
 
-                        console.log('Decompressed FLA Content:', flaContent);
-                        document.getElementById('output').textContent = 'Decompressed FLA Content ready.';
+                        console.log('Extracted ActionScript:', actionScriptCode);
+                        document.getElementById('output').textContent = 'Decompressed ActionScript content ready.';
 
                         // Show the save and zip buttons
                         document.getElementById('saveButton').style.display = 'inline-block';
@@ -65,6 +66,14 @@
                 alert('Please select a SWF file to decompress.');
             }
         });
+
+        function extractActionScript(decompressedData) {
+            // Decode the decompressed data to string
+            const decodedData = new TextDecoder('utf-8').decode(decompressedData);
+            // Simple extraction of ActionScript code (this can be improved)
+            const actionScriptMatch = decodedData.match(/(package\s*{[^}]*})/s);
+            return actionScriptMatch ? actionScriptMatch[1] : "// No ActionScript found";
+        }
 
         document.getElementById('saveButton').addEventListener('click', function() {
             if (flaContent) {
