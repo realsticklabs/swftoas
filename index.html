@@ -3,41 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SWF Parser</title>
+    <title>Decompress SWF Data</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.11/pako.min.js"></script>
 </head>
 <body>
-    <h1>Simple SWF Parser</h1>
-
-    <!-- Upload SWF file -->
-    <input type="file" id="swfFile" accept=".swf" />
+    <h1>SWF Decompression Example</h1>
     
-    <!-- Display parsed content -->
-    <pre id="output"></pre>
-
     <script>
-        document.getElementById('swfFile').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file && file.name.endsWith('.swf')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const arrayBuffer = e.target.result;
+        // Example compressed data (replace this with your zlib-compressed SWF byte array)
+        const compressedData = new Uint8Array([/* Your compressed byte data here */]);
 
-                    // Use a basic SWF parser here (replace with actual parsing logic)
-                    const swfData = parseSWF(arrayBuffer); // Placeholder for a real SWF parser
-                    document.getElementById('output').textContent = JSON.stringify(swfData, null, 2);
-                };
-                reader.readAsArrayBuffer(file);
-            } else {
-                alert("Please upload a valid SWF file.");
-            }
-        });
+        try {
+            // Decompress the data
+            const decompressedData = pako.inflate(compressedData);
 
-        function parseSWF(buffer) {
-            // This is a placeholder function, actual SWF parsing library is needed
-            return {
-                message: "This would contain parsed SWF data",
-                size: buffer.byteLength
-            };
+            // Convert to string (assuming original data was a string)
+            const originalData = new TextDecoder().decode(decompressedData);
+            console.log('Decompressed Data:', originalData);
+        } catch (err) {
+            console.error('Decompression failed:', err);
         }
     </script>
 </body>
