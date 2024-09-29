@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWF to FLA Decompiler</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swfobject/2.2/swfobject.min.js"></script>
+</head>
+<body>
+    <h1>SWF to FLA Decompiler</h1>
+
+    <input type="file" id="swf-file" accept=".swf" />
+    <pre id="output"></pre>
+
+    <script>
+        document.getElementById('swf-file').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+
+            if (file && file.name.endsWith('.swf')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const arrayBuffer = e.target.result;
+                    const parsedSWF = parseSWF(arrayBuffer);  // Placeholder for parsing logic
+                    const flaContent = convertToFLA(parsedSWF);  // Placeholder for decompiling to FLA
+
+                    document.getElementById('output').textContent = "FLA Project Structure: " + JSON.stringify(flaContent, null, 2);
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        function parseSWF(arrayBuffer) {
+            // Placeholder for SWF parsing logic
+            return { message: "SWF parsed, decompilation to FLA not yet implemented." };
+        }
+
+        function convertToFLA(parsedSWF) {
+            // Placeholder for logic to convert parsed SWF into FLA structure
+            return { message: "FLA conversion logic pending." };
+        }
+    </script>
+</body>
+</html>
