@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zlib Decompression Example for SWF Files</title>
+    <title>SWF Decompression and ZIP Compression</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.11/pako.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
-    <h1>Zlib Decompression Example for SWF Files</h1>
+    <h1>SWF Decompression and ZIP Compression</h1>
     
-    <!-- File input and button -->
+    <!-- File input and buttons -->
     <input type="file" id="fileInput" accept=".swf" />
     <button id="decompressButton">Decompress SWF File</button>
     <button id="saveButton" style="display: none;">Save as FLA</button>
+    <button id="zipButton" style="display: none;">Compress to ZIP</button>
     
     <pre id="output"></pre>
 
@@ -46,8 +48,9 @@
                         console.log('Decompressed Data:', originalData);
                         document.getElementById('output').textContent = 'Decompressed Data: ' + originalData;
 
-                        // Show the save button
+                        // Show the save and zip buttons
                         document.getElementById('saveButton').style.display = 'inline-block';
+                        document.getElementById('zipButton').style.display = 'inline-block';
 
                     } catch (err) {
                         console.error('Decompression failed:', err);
@@ -74,6 +77,26 @@
                 URL.revokeObjectURL(url); // Clean up
             } else {
                 alert('No decompressed data available to save.');
+            }
+        });
+
+        document.getElementById('zipButton').addEventListener('click', function() {
+            if (decompressedData) {
+                const zip = new JSZip();
+                zip.file("output.fla", decompressedData);
+
+                zip.generateAsync({ type: "blob" }).then(function(content) {
+                    const url = URL.createObjectURL(content);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'output.zip';  // Set the name of the zip file
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url); // Clean up
+                });
+            } else {
+                alert('No decompressed data available to compress into ZIP.');
             }
         });
     </script>
